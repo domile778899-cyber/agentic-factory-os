@@ -4,34 +4,64 @@ import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import AppLayout from "./components/AppLayout";
+
+// Pages
 import Home from "./pages/Home";
+import Factory from "./pages/Factory";
+import Agents from "./pages/Agents";
+import Workspace from "./pages/Workspace";
+import Evolution from "./pages/Evolution";
+import Maintenance from "./pages/Maintenance";
+import MoE from "./pages/MoE";
+import Projects from "./pages/Projects";
+import Earnings from "./pages/Earnings";
+import Subscription from "./pages/Subscription";
+import Settings from "./pages/Settings";
+
+// Pages that use the full AppLayout (dashboard-style)
+const LAYOUT_ROUTES = [
+  { path: "/",             Component: Home },
+  { path: "/factory",      Component: Factory },
+  { path: "/agents",       Component: Agents },
+  { path: "/workspace",    Component: Workspace },
+  { path: "/evolution",    Component: Evolution },
+  { path: "/maintenance",  Component: Maintenance },
+  { path: "/moe",          Component: MoE },
+  { path: "/projects",     Component: Projects },
+  { path: "/earnings",     Component: Earnings },
+  { path: "/subscription", Component: Subscription },
+  { path: "/settings",     Component: Settings },
+];
 
 function Router() {
-  // make sure to consider if you need authentication for certain routes
   return (
-    <Switch>
-      <Route path={"/"} component={Home} />
-      <Route path={"/404"} component={NotFound} />
-      {/* Final fallback route */}
-      <Route component={NotFound} />
-    </Switch>
+    <AppLayout>
+      <Switch>
+        {LAYOUT_ROUTES.map(({ path, Component }) => (
+          <Route key={path} path={path} component={Component} />
+        ))}
+        <Route component={NotFound} />
+      </Switch>
+    </AppLayout>
   );
 }
-
-// NOTE: About Theme
-// - First choose a default theme according to your design style (dark or light bg), than change color palette in index.css
-//   to keep consistent foreground/background color across components
-// - If you want to make theme switchable, pass `switchable` ThemeProvider and use `useTheme` hook
 
 function App() {
   return (
     <ErrorBoundary>
-      <ThemeProvider
-        defaultTheme="light"
-        // switchable
-      >
+      <ThemeProvider defaultTheme="dark">
         <TooltipProvider>
-          <Toaster />
+          <Toaster
+            theme="dark"
+            toastOptions={{
+              style: {
+                background: 'var(--bg-elevated)',
+                border: '1px solid var(--border-default)',
+                color: 'var(--text-primary)',
+              },
+            }}
+          />
           <Router />
         </TooltipProvider>
       </ThemeProvider>

@@ -1,5 +1,20 @@
 {
   "version": "7",
   "dialect": "mysql",
-  "entries": []
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1779753450403,
+      "tag": "0000_redundant_living_tribunal",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1779753663725,
+      "tag": "0001_tiny_the_order",
+      "breakpoints": true
+    }
+  ]
 }
