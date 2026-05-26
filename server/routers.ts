@@ -5,6 +5,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { invokeLLM } from "./_core/llm";
 import { lobeRouter } from './routers/lobe';
+import { adminRouter } from './routers/admin';
 import {
   upsertUser, getUserByOpenId,
   getProjectsByUser, createProject, getProjectById, updateProject,
@@ -266,6 +267,9 @@ export const appRouter = router({
 
   /* ─── LobeHub 功能模块 ─── */
   lobe: lobeRouter,
+
+  /* ─── 管理后台 ─── */
+  admin: adminRouter,
 
   /* ─── i18n ─── */
   i18n: router({

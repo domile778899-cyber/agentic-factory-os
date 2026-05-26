@@ -19,6 +19,7 @@ export const translations = {
     nav_skills: 'Skills',
     nav_mcp: 'MCP',
     nav_providers: '模型服务商',
+    nav_admin: '管理后台',
     // 通用
     loading: '加载中...',
     save: '保存',
@@ -105,6 +106,7 @@ export const translations = {
     nav_skills: 'Skills',
     nav_mcp: 'MCP',
     nav_providers: 'Providers',
+    nav_admin: 'Admin',
     loading: 'Loading...',
     save: 'Save',
     cancel: 'Cancel',

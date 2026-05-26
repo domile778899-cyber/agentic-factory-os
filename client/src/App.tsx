@@ -22,6 +22,11 @@ import Assistants from "./pages/Assistants";
 import Skills from "./pages/Skills";
 import MCPPage from "./pages/MCPPage";
 import ModelProviders from "./pages/ModelProviders";
+import AdminDashboardPage, { AdminLayout } from "./pages/admin/AdminDashboard";
+import AdminUsersPage from "./pages/admin/AdminUsers";
+import AdminSettingsPage from "./pages/admin/AdminSettings";
+import AdminOrdersPage from "./pages/admin/AdminOrders";
+import { AdminBuildsPage, AdminAnnouncementsPage } from "./pages/admin/AdminBuilds";
 
 // Pages that use the full AppLayout (dashboard-style)
 const LAYOUT_ROUTES = [
@@ -42,16 +47,37 @@ const LAYOUT_ROUTES = [
   { path: "/providers",    Component: ModelProviders },
 ];
 
+function AdminRouter() {
+  return (
+    <AdminLayout>
+      <Switch>
+        <Route path="/admin" component={AdminDashboardPage} />
+        <Route path="/admin/users" component={AdminUsersPage} />
+        <Route path="/admin/settings" component={AdminSettingsPage} />
+        <Route path="/admin/orders" component={AdminOrdersPage} />
+        <Route path="/admin/builds" component={AdminBuildsPage} />
+        <Route path="/admin/announcements" component={AdminAnnouncementsPage} />
+      </Switch>
+    </AdminLayout>
+  );
+}
+
 function Router() {
   return (
-    <AppLayout>
-      <Switch>
-        {LAYOUT_ROUTES.map(({ path, Component }) => (
-          <Route key={path} path={path} component={Component} />
-        ))}
-        <Route component={NotFound} />
-      </Switch>
-    </AppLayout>
+    <Switch>
+      <Route path="/admin" component={AdminRouter} />
+      <Route path="/admin/:rest*" component={AdminRouter} />
+      <Route>
+        <AppLayout>
+          <Switch>
+            {LAYOUT_ROUTES.map(({ path, Component }) => (
+              <Route key={path} path={path} component={Component} />
+            ))}
+            <Route component={NotFound} />
+          </Switch>
+        </AppLayout>
+      </Route>
+    </Switch>
   );
 }
 

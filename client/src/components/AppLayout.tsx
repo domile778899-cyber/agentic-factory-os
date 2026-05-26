@@ -8,7 +8,7 @@ import {
   Home, Factory, Bot, Box, Zap, Shield, Network,
   FolderOpen, DollarSign, CreditCard, Settings,
   ChevronLeft, ChevronRight, Globe, LogOut, User,
-  Sparkles, Menu, X, Brain, Wrench, Plug, MessageSquare
+  Sparkles, Menu, X, Brain, Wrench, Plug, MessageSquare, ShieldCheck
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -30,6 +30,7 @@ const NAV_ITEMS = [
   { key: 'nav_earnings',     path: '/earnings',     icon: DollarSign,    section: 'biz' },
   { key: 'nav_subscription', path: '/subscription', icon: CreditCard,    section: 'biz' },
   { key: 'nav_settings',     path: '/settings',     icon: Settings,      section: 'system' },
+  { key: 'nav_admin',         path: '/admin',        icon: ShieldCheck,   section: 'system', badge: 'ADMIN' },
 ] as const;
 
 const SECTION_LABELS = {
