@@ -263,6 +263,27 @@ export const appRouter = router({
     }),
   }),
 
+  /* ─── i18n ─── */
+  i18n: router({
+    getLocale: protectedProcedure.query(async ({ ctx }) => {
+      const { getDb } = await import('./db');
+      const { users } = await import('../drizzle/schema');
+      const { eq } = await import('drizzle-orm');
+      const db = await getDb();
+      if (!db) return { locale: 'zh' };
+      const r = await db.select({ locale: users.locale }).from(users).where(eq(users.id, ctx.user.id)).limit(1);
+      return { locale: r[0]?.locale || 'zh' };
+    }),
+    setLocale: protectedProcedure.input(z.object({ locale: z.enum(['zh', 'en']) })).mutation(async ({ ctx, input }) => {
+      const { getDb } = await import('./db');
+      const { users } = await import('../drizzle/schema');
+      const { eq } = await import('drizzle-orm');
+      const db = await getDb();
+      if (db) await db.update(users).set({ locale: input.locale }).where(eq(users.id, ctx.user.id));
+      return { success: true, locale: input.locale };
+    }),
+  }),
+
   /* ─── AI Chat (MoE-powered) ─── */
   chat: router({
     send: protectedProcedure.input(z.object({

@@ -27,7 +27,7 @@
 - [x] moe 路由（模型配置、智能调度）
 - [x] subscription 路由（套餐管理）
 - [x] earnings 路由（收益统计）
-- [ ] i18n 路由（语言切换）
+- [x] i18n 路由（语言切换——已通过 useI18n hook + locale 字段实现）
 
 ## 前端页面
 - [x] 首页 Landing（品牌展示、CTA、功能亮点）
