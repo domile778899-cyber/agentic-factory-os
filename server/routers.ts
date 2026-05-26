@@ -8,7 +8,10 @@ import { lobeRouter } from './routers/lobe';
 import { adminRouter } from './routers/admin';
 import { communityRouter } from './routers/community';
 import { paymentRouter } from './routers/payment';
+import { sql, eq, and } from "drizzle-orm";
+import { projects, agents } from "../drizzle/schema";
 import {
+  getDb,
   upsertUser, getUserByOpenId,
   getProjectsByUser, createProject, getProjectById, updateProject,
   getBuildsByProject, createBuild, updateBuildStatus, addBuildLog, getBuildLogs,
@@ -86,6 +89,14 @@ export const appRouter = router({
       await updateProject(id, ctx.user.id, data);
       return { success: true };
     }),
+    delete: protectedProcedure.input(z.object({
+      id: z.number(),
+    })).mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new Error('DB unavailable');
+      await db.delete(projects).where(and(eq(projects.id, input.id), eq(projects.userId, ctx.user.id)));
+      return { success: true };
+    }),
   }),
 
   /* ─── Factory Build Pipeline ─── */
@@ -117,6 +128,27 @@ export const appRouter = router({
       }
       return agentList;
     }),
+    create: protectedProcedure.input(z.object({
+      name: z.string().min(1),
+      role: z.string().min(1),
+      layer: z.string().min(1),
+      agentKey: z.string().min(1),
+      skillsEnabled: z.any().optional(),
+      config: z.any().optional(),
+    })).mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new Error('DB unavailable');
+      const [result] = await db.insert(agents).values({
+        userId: ctx.user.id,
+        name: input.name,
+        role: input.role,
+        layer: input.layer,
+        agentKey: input.agentKey,
+        skillsEnabled: input.skillsEnabled ?? [],
+        config: input.config ?? null,
+      });
+      return { success: true, id: Number((result as any).insertId) };
+    }),
     toggle: protectedProcedure.input(z.object({
       id: z.number(),
       enabled: z.boolean(),
@@ -129,6 +161,14 @@ export const appRouter = router({
       status: z.enum(['online','busy','offline']),
     })).mutation(async ({ ctx, input }) => {
       await updateAgentStatus(input.id, ctx.user.id, { status: input.status });
+      return { success: true };
+    }),
+    delete: protectedProcedure.input(z.object({
+      id: z.number(),
+    })).mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new Error('DB unavailable');
+      await db.delete(agents).where(and(eq(agents.id, input.id), eq(agents.userId, ctx.user.id)));
       return { success: true };
     }),
   }),
@@ -265,9 +305,23 @@ export const appRouter = router({
       for (const e of list) byType[e.type] = (byType[e.type] || 0) + e.amountCents;
       return { totalCents: total, confirmedCents: confirmed, byType };
     }),
+    history: protectedProcedure.query(async ({ ctx }) => {
+      const db = await getDb();
+      if (!db) return [];
+      const [rows] = await db.execute(sql`
+        SELECT 
+          DATE_FORMAT(createdAt, '%Y-%m') as month,
+          SUM(amountCents) as amount
+        FROM earnings 
+        WHERE userId = ${ctx.user.id} AND createdAt > DATE_SUB(NOW(), INTERVAL 6 MONTH)
+        GROUP BY DATE_FORMAT(createdAt, '%Y-%m')
+        ORDER BY month ASC
+      `);
+      return rows || [];
+    }),
   }),
 
-  /* ─── LobeHub 功能模块 ─── */
+  /* ─── Factory Hub (AI 工坊) 功能模块 ─── */
   lobe: lobeRouter,
 
   /* ─── 管理后台 ─── */

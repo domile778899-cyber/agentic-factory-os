@@ -4,6 +4,10 @@ import {
   users, projects, builds, buildLogs, agents,
   evolutionCycles, bugReports, fixProposals, moeConfigs,
   subscriptions, earnings,
+  assistants, skills, userSkills, mcpServers, modelProviders,
+  conversations, messages, taskOrders, communityPosts,
+  communityComments, userIncomePlans, paymentEscrow,
+  adminSettings, announcements,
   InsertUser
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
@@ -206,4 +210,253 @@ export async function getEarnings(userId: number) {
 export async function addEarning(data: { userId: number; type: 'subscription'|'compute_share'|'bazaar'|'referral'|'trading'; amountCents: number; description?: string }) {
   const db = await getDb(); if (!db) return;
   await db.insert(earnings).values({ ...data, status: 'pending' });
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   新增辅助函数 (2024)
+   ═══════════════════════════════════════════════════════════ */
+
+/* ─── Assistants ─── */
+export async function getAssistantsByUser(userId: number, includePublic = false) {
+  const db = await getDb(); if (!db) return [];
+  if (includePublic) {
+    return db.select().from(assistants).where(eq(assistants.userId, userId)).orderBy(desc(assistants.updatedAt));
+  }
+  return db.select().from(assistants).where(eq(assistants.userId, userId)).orderBy(desc(assistants.updatedAt));
+}
+
+export async function createAssistant(data: { userId: number; name: string; description?: string; systemPrompt?: string; model?: string; provider?: string; tags?: unknown; isPublic?: boolean }) {
+  const db = await getDb(); if (!db) throw new Error("DB unavailable");
+  const [r] = await db.insert(assistants).values({ ...data, usageCount: 0 });
+  return r;
+}
+
+export async function updateAssistant(id: number, userId: number, data: Partial<{ name: string; description: string; systemPrompt: string; model: string; provider: string; tags: unknown; isPublic: boolean }>) {
+  const db = await getDb(); if (!db) return;
+  await db.update(assistants).set(data).where(and(eq(assistants.id, id), eq(assistants.userId, userId)));
+}
+
+/* ─── Skills ─── */
+export async function getSkills(category?: string) {
+  const db = await getDb(); if (!db) return [];
+  if (category) {
+    return db.select().from(skills).where(eq(skills.category, category)).orderBy(desc(skills.downloadCount));
+  }
+  return db.select().from(skills).orderBy(desc(skills.downloadCount));
+}
+
+export async function createSkill(data: { name: string; description?: string; category: string; icon?: string; author?: string; isBuiltin?: boolean; config?: unknown }) {
+  const db = await getDb(); if (!db) throw new Error("DB unavailable");
+  const [r] = await db.insert(skills).values({ ...data, downloadCount: 0, rating: 0 });
+  return r;
+}
+
+/* ─── UserSkills ─── */
+export async function getUserSkills(userId: number) {
+  const db = await getDb(); if (!db) return [];
+  return db.select().from(userSkills).where(eq(userSkills.userId, userId)).orderBy(desc(userSkills.installedAt));
+}
+
+export async function installSkill(userId: number, skillId: number, config?: unknown) {
+  const db = await getDb(); if (!db) return;
+  await db.insert(userSkills).values({ userId, skillId, config });
+}
+
+export async function uninstallSkill(userId: number, skillId: number) {
+  const db = await getDb(); if (!db) return;
+  await db.delete(userSkills).where(and(eq(userSkills.userId, userId), eq(userSkills.skillId, skillId)));
+}
+
+/* ─── MCP Servers ─── */
+export async function getMcpServersByUser(userId: number) {
+  const db = await getDb(); if (!db) return [];
+  return db.select().from(mcpServers).where(eq(mcpServers.userId, userId)).orderBy(desc(mcpServers.updatedAt));
+}
+
+export async function createMcpServer(data: { userId: number; name: string; description?: string; endpoint?: string; transport?: string; config?: unknown }) {
+  const db = await getDb(); if (!db) throw new Error("DB unavailable");
+  const [r] = await db.insert(mcpServers).values({ ...data, status: 'offline', toolsCount: 0, callsCount: 0 });
+  return r;
+}
+
+export async function updateMcpServerStatus(id: number, userId: number, status: 'online'|'offline'|'error', toolsCount?: number) {
+  const db = await getDb(); if (!db) return;
+  await db.update(mcpServers).set({ status, ...(toolsCount !== undefined ? { toolsCount } : {}) }).where(and(eq(mcpServers.id, id), eq(mcpServers.userId, userId)));
+}
+
+/* ─── Model Providers ─── */
+export async function getModelProvidersByUser(userId: number) {
+  const db = await getDb(); if (!db) return [];
+  return db.select().from(modelProviders).where(eq(modelProviders.userId, userId)).orderBy(desc(modelProviders.updatedAt));
+}
+
+export async function upsertModelProvider(userId: number, data: { providerKey: string; providerName: string; isFree?: boolean; enabled?: boolean; apiKey?: string; baseUrl?: string; models?: unknown }) {
+  const db = await getDb(); if (!db) return;
+  const existing = await db.select().from(modelProviders).where(and(eq(modelProviders.userId, userId), eq(modelProviders.providerKey, data.providerKey))).limit(1);
+  if (existing.length === 0) {
+    await db.insert(modelProviders).values({ userId, ...data });
+  } else {
+    await db.update(modelProviders).set(data).where(and(eq(modelProviders.userId, userId), eq(modelProviders.providerKey, data.providerKey)));
+  }
+}
+
+/* ─── Conversations ─── */
+export async function getConversationsByUser(userId: number) {
+  const db = await getDb(); if (!db) return [];
+  return db.select().from(conversations).where(eq(conversations.userId, userId)).orderBy(desc(conversations.updatedAt));
+}
+
+export async function createConversation(data: { userId: number; assistantId?: number; title?: string; model?: string; provider?: string }) {
+  const db = await getDb(); if (!db) throw new Error("DB unavailable");
+  const [r] = await db.insert(conversations).values({ ...data, messageCount: 0 });
+  return r;
+}
+
+export async function incrementMessageCount(conversationId: number) {
+  const db = await getDb(); if (!db) return;
+  const conv = await db.select().from(conversations).where(eq(conversations.id, conversationId)).limit(1);
+  if (conv[0]) {
+    await db.update(conversations).set({ messageCount: conv[0].messageCount + 1 }).where(eq(conversations.id, conversationId));
+  }
+}
+
+/* ─── Messages ─── */
+export async function getMessagesByConversation(conversationId: number) {
+  const db = await getDb(); if (!db) return [];
+  return db.select().from(messages).where(eq(messages.conversationId, conversationId)).orderBy(messages.createdAt);
+}
+
+export async function createMessage(data: { conversationId: number; role: 'user'|'assistant'|'system'; content: string; tokensUsed?: number }) {
+  const db = await getDb(); if (!db) return;
+  await db.insert(messages).values(data);
+}
+
+/* ─── Task Orders ─── */
+export async function getTaskOrders(status?: 'open'|'in_progress'|'completed'|'cancelled') {
+  const db = await getDb(); if (!db) return [];
+  if (status) {
+    return db.select().from(taskOrders).where(eq(taskOrders.status, status)).orderBy(desc(taskOrders.createdAt));
+  }
+  return db.select().from(taskOrders).orderBy(desc(taskOrders.createdAt));
+}
+
+export async function getTaskOrdersByPublisher(publisherId: number) {
+  const db = await getDb(); if (!db) return [];
+  return db.select().from(taskOrders).where(eq(taskOrders.publisherId, publisherId)).orderBy(desc(taskOrders.createdAt));
+}
+
+export async function createTaskOrder(data: { publisherId: number; title: string; description?: string; category: string; budget?: number; currency?: string; deadline?: Date; requiredSkills?: unknown; attachments?: unknown }) {
+  const db = await getDb(); if (!db) throw new Error("DB unavailable");
+  const [r] = await db.insert(taskOrders).values({ ...data, status: 'open' });
+  return r;
+}
+
+export async function updateTaskOrderStatus(id: number, status: 'open'|'in_progress'|'completed'|'cancelled', takerId?: number) {
+  const db = await getDb(); if (!db) return;
+  const update: Record<string, unknown> = { status };
+  if (status === 'completed') update.completedAt = new Date();
+  if (takerId !== undefined) update.takerId = takerId;
+  await db.update(taskOrders).set(update).where(eq(taskOrders.id, id));
+}
+
+/* ─── Community Posts ─── */
+export async function getCommunityPosts(category?: string) {
+  const db = await getDb(); if (!db) return [];
+  if (category) {
+    return db.select().from(communityPosts).where(eq(communityPosts.category, category)).orderBy(desc(communityPosts.createdAt));
+  }
+  return db.select().from(communityPosts).orderBy(desc(communityPosts.createdAt));
+}
+
+export async function createCommunityPost(data: { userId: number; title: string; content: string; category: string; income?: number; tags?: unknown }) {
+  const db = await getDb(); if (!db) throw new Error("DB unavailable");
+  const [r] = await db.insert(communityPosts).values({ ...data, likeCount: 0, commentCount: 0, isPinned: false });
+  return r;
+}
+
+export async function incrementPostComments(postId: number) {
+  const db = await getDb(); if (!db) return;
+  const post = await db.select().from(communityPosts).where(eq(communityPosts.id, postId)).limit(1);
+  if (post[0]) {
+    await db.update(communityPosts).set({ commentCount: post[0].commentCount + 1 }).where(eq(communityPosts.id, postId));
+  }
+}
+
+/* ─── Community Comments ─── */
+export async function getCommentsByPost(postId: number) {
+  const db = await getDb(); if (!db) return [];
+  return db.select().from(communityComments).where(eq(communityComments.postId, postId)).orderBy(communityComments.createdAt);
+}
+
+export async function createCommunityComment(data: { postId: number; userId: number; content: string }) {
+  const db = await getDb(); if (!db) return;
+  await db.insert(communityComments).values({ ...data, likeCount: 0 });
+}
+
+/* ─── User Income Plans ─── */
+export async function getUserIncomePlans(userId: number) {
+  const db = await getDb(); if (!db) return [];
+  return db.select().from(userIncomePlans).where(eq(userIncomePlans.userId, userId)).orderBy(desc(userIncomePlans.createdAt));
+}
+
+export async function createUserIncomePlan(data: { userId: number; title: string; strategy?: unknown; expectedIncome?: number; timeline?: string }) {
+  const db = await getDb(); if (!db) throw new Error("DB unavailable");
+  const [r] = await db.insert(userIncomePlans).values({ ...data, status: 'draft' });
+  return r;
+}
+
+export async function updateIncomePlanStatus(id: number, userId: number, status: 'draft'|'active'|'paused'|'completed') {
+  const db = await getDb(); if (!db) return;
+  await db.update(userIncomePlans).set({ status }).where(and(eq(userIncomePlans.id, id), eq(userIncomePlans.userId, userId)));
+}
+
+/* ─── Payment Escrow ─── */
+export async function getPaymentEscrow(taskOrderId: number) {
+  const db = await getDb(); if (!db) return undefined;
+  const r = await db.select().from(paymentEscrow).where(eq(paymentEscrow.taskOrderId, taskOrderId)).limit(1);
+  return r[0];
+}
+
+export async function createPaymentEscrow(data: { taskOrderId: number; payerId: number; payeeId: number; amount: number; currency?: string; paymentMethod?: string; platformFeePercent?: number; platformFeeCents?: number; payeeAmountCents?: number }) {
+  const db = await getDb(); if (!db) throw new Error("DB unavailable");
+  const [r] = await db.insert(paymentEscrow).values({ ...data, status: 'pending' });
+  return r;
+}
+
+export async function updateEscrowStatus(id: number, status: 'pending'|'held'|'released'|'disputed'|'refunded', extra?: { heldAt?: Date; releasedAt?: Date; disputeReason?: string }) {
+  const db = await getDb(); if (!db) return;
+  const update: Record<string, unknown> = { status, ...extra };
+  if (status === 'held') update.heldAt = new Date();
+  if (status === 'released') update.releasedAt = new Date();
+  await db.update(paymentEscrow).set(update).where(eq(paymentEscrow.id, id));
+}
+
+/* ─── Admin Settings ─── */
+export async function getAdminSetting(key: string) {
+  const db = await getDb(); if (!db) return undefined;
+  const r = await db.select().from(adminSettings).where(eq(adminSettings.key, key)).limit(1);
+  return r[0];
+}
+
+export async function setAdminSetting(key: string, value: string, updatedBy: number) {
+  const db = await getDb(); if (!db) return;
+  await db.insert(adminSettings).values({ key, value, updatedBy }).onDuplicateKeyUpdate({ set: { value, updatedBy } });
+}
+
+/* ─── Announcements ─── */
+export async function getActiveAnnouncements() {
+  const db = await getDb(); if (!db) return [];
+  return db.select().from(announcements).where(eq(announcements.isActive, true)).orderBy(desc(announcements.createdAt));
+}
+
+export async function createAnnouncement(data: { adminId: number; title: string; content: string; type?: 'info'|'warning'|'success'; startAt?: Date; endAt?: Date }) {
+  const db = await getDb(); if (!db) throw new Error("DB unavailable");
+  const [r] = await db.insert(announcements).values({ ...data, isActive: true });
+  return r;
+}
+
+export async function deactivateAnnouncement(id: number) {
+  const db = await getDb(); if (!db) return;
+  await db.update(announcements).set({ isActive: false }).where(eq(announcements.id, id));
 }

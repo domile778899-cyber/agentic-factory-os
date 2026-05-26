@@ -15,6 +15,13 @@
       "when": 1779753663725,
       "tag": "0001_tiny_the_order",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1779782519541,
+      "tag": "0002_hesitant_bromley",
+      "breakpoints": true
     }
   ]
 }

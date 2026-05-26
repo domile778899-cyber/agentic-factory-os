@@ -1,14 +1,29 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Settings, Globe, User, Bell, Shield, Palette } from 'lucide-react';
+import { Settings, Globe, User, Bell, Shield, Palette, Key } from 'lucide-react';
 import { useI18n } from '@/hooks/useI18n';
 import { useAuth } from '@/_core/hooks/useAuth';
+import { trpc } from '@/lib/trpc';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 
 export default function SettingsPage() {
   const { t, locale, changeLocale } = useI18n();
   const { user } = useAuth();
+  const [apiKey, setApiKeyValue] = useState('');
+
+  // API Key mutation
+  const setApiKeyMutation = trpc.lobe.providers.setApiKey.useMutation({
+    onSuccess: () => {
+      toast.success('API Key 已保存');
+      setApiKeyValue('');
+    },
+    onError: (err) => {
+      toast.error(`保存失败: ${err.message}`);
+    },
+  });
 
   return (
     <div className="p-6 space-y-6 max-w-2xl">
@@ -63,6 +78,42 @@ export default function SettingsPage() {
         </div>
       </div>
 
+      {/* API Key Management */}
+      <div className="glass-card p-5">
+        <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-4 flex items-center gap-2">
+          <Key size={14} /> API Key 管理
+        </h3>
+        <div className="space-y-3">
+          <div>
+            <label className="text-xs text-[var(--text-muted)]">DeepSeek / OpenAI API Key</label>
+            <div className="flex gap-2 mt-1">
+              <Input
+                type="password"
+                placeholder="sk-..."
+                value={apiKey}
+                onChange={e => setApiKeyValue(e.target.value)}
+                className="flex-1 bg-[var(--bg-elevated)] border-[var(--border-default)] text-sm"
+              />
+              <Button
+                size="sm"
+                onClick={() => {
+                  if (!apiKey.trim()) {
+                    toast.error('请输入 API Key');
+                    return;
+                  }
+                  setApiKeyMutation.mutate({ providerKey: 'deepseek', apiKey: apiKey.trim() });
+                }}
+                disabled={setApiKeyMutation.isPending}
+                className="bg-[var(--brand-primary)] hover:bg-[var(--brand-primary)]/80"
+              >
+                {setApiKeyMutation.isPending ? '保存中...' : '保存'}
+              </Button>
+            </div>
+            <p className="text-xs text-[var(--text-muted)] mt-1">API Key 将加密存储，仅用于您的 AI 调用</p>
+          </div>
+        </div>
+      </div>
+
       {/* Theme */}
       <div className="glass-card p-5">
         <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-4 flex items-center gap-2">
@@ -102,3 +153,4 @@ export default function SettingsPage() {
     </div>
   );
 }
+

@@ -53,9 +53,15 @@ export const adminRouter = router({
       const { sql } = await import('drizzle-orm');
       try {
         const offset = (input.page - 1) * input.pageSize;
-        const searchCond = input.search ? `AND (name LIKE '%${input.search}%' OR email LIKE '%${input.search}%')` : '';
-        const [rows] = await db.execute(sql.raw(`SELECT u.*, s.tier as subTier, s.buildsUsed, s.buildsLimit FROM users u LEFT JOIN subscriptions s ON u.id = s.userId WHERE 1=1 ${searchCond} ORDER BY u.createdAt DESC LIMIT ${input.pageSize} OFFSET ${offset}`));
-        const [countRow] = await db.execute(sql.raw(`SELECT COUNT(*) as total FROM users WHERE 1=1 ${searchCond}`));
+        let rows, countRow;
+        if (input.search) {
+          const searchPattern = `%${input.search}%`;
+          [rows] = await db.execute(sql`SELECT u.*, s.tier as subTier, s.buildsUsed, s.buildsLimit FROM users u LEFT JOIN subscriptions s ON u.id = s.userId WHERE (name LIKE ${searchPattern} OR email LIKE ${searchPattern}) ORDER BY u.createdAt DESC LIMIT ${input.pageSize} OFFSET ${offset}`);
+          [countRow] = await db.execute(sql`SELECT COUNT(*) as total FROM users WHERE name LIKE ${searchPattern} OR email LIKE ${searchPattern}`);
+        } else {
+          [rows] = await db.execute(sql`SELECT u.*, s.tier as subTier, s.buildsUsed, s.buildsLimit FROM users u LEFT JOIN subscriptions s ON u.id = s.userId ORDER BY u.createdAt DESC LIMIT ${input.pageSize} OFFSET ${offset}`);
+          [countRow] = await db.execute(sql`SELECT COUNT(*) as total FROM users`);
+        }
         return { list: (rows as unknown as any[]) || [], total: (countRow as unknown as any[])[0]?.total || 0 };
       } catch { return { list: [], total: 0 }; }
     }),
@@ -178,9 +184,14 @@ export const adminRouter = router({
       const { sql } = await import('drizzle-orm');
       try {
         const offset = (input.page - 1) * 20;
-        const statusCond = input.status ? `AND b.status = '${input.status}'` : '';
-        const [rows] = await db.execute(sql.raw(`SELECT b.*, u.name as userName, u.email as userEmail FROM builds b LEFT JOIN users u ON b.userId = u.id WHERE 1=1 ${statusCond} ORDER BY b.createdAt DESC LIMIT 20 OFFSET ${offset}`));
-        const [countRow] = await db.execute(sql.raw(`SELECT COUNT(*) as total FROM builds WHERE 1=1 ${statusCond}`));
+        let rows, countRow;
+        if (input.status) {
+          [rows] = await db.execute(sql`SELECT b.*, u.name as userName, u.email as userEmail FROM builds b LEFT JOIN users u ON b.userId = u.id WHERE b.status = ${input.status} ORDER BY b.createdAt DESC LIMIT 20 OFFSET ${offset}`);
+          [countRow] = await db.execute(sql`SELECT COUNT(*) as total FROM builds WHERE status = ${input.status}`);
+        } else {
+          [rows] = await db.execute(sql`SELECT b.*, u.name as userName, u.email as userEmail FROM builds b LEFT JOIN users u ON b.userId = u.id ORDER BY b.createdAt DESC LIMIT 20 OFFSET ${offset}`);
+          [countRow] = await db.execute(sql`SELECT COUNT(*) as total FROM builds`);
+        }
         return { list: (rows as unknown as any[]) || [], total: (countRow as unknown as any[])[0]?.total || 0 };
       } catch { return { list: [], total: 0 }; }
     }),
@@ -194,7 +205,7 @@ export const adminRouter = router({
       const { sql } = await import('drizzle-orm');
       try {
         const offset = (input.page - 1) * 20;
-        const [rows] = await db.execute(sql.raw(`SELECT o.*, u.name as userName, u.email as userEmail FROM paymentOrders o LEFT JOIN users u ON o.userId = u.id ORDER BY o.createdAt DESC LIMIT 20 OFFSET ${offset}`));
+        const [rows] = await db.execute(sql`SELECT o.*, u.name as userName, u.email as userEmail FROM paymentOrders o LEFT JOIN users u ON o.userId = u.id ORDER BY o.createdAt DESC LIMIT 20 OFFSET ${offset}`);
         const [countRow] = await db.execute(sql`SELECT COUNT(*) as total FROM paymentOrders`);
         return { list: (rows as unknown as any[]) || [], total: (countRow as unknown as any[])[0]?.total || 0 };
       } catch { return { list: [], total: 0 }; }

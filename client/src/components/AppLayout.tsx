@@ -38,7 +38,7 @@ const NAV_ITEMS = [
 
 const SECTION_LABELS: Record<string, Record<string, string>> = {
   main:   { zh: '核心功能', en: 'Core', ja: 'コア', ko: '핵심', es: 'Principal', fr: 'Principal', de: 'Kern', ar: 'الرئيسي' },
-  lobe:   { zh: 'LobeHub 模块', en: 'LobeHub', ja: 'LobeHub', ko: 'LobeHub', es: 'LobeHub', fr: 'LobeHub', de: 'LobeHub', ar: 'LobeHub' },
+  lobe:   { zh: 'AI 工坊', en: 'Factory Hub', ja: 'AIワークス', ko: 'AI 공방', es: 'Hub IA', fr: 'Hub IA', de: 'KI-Werkstatt', ar: 'ورشة الذكاء الاصطناعي' },
   ai:     { zh: 'AI 引擎', en: 'AI Engine', ja: 'AIエンジン', ko: 'AI 엔진', es: 'Motor IA', fr: 'Moteur IA', de: 'KI-Engine', ar: 'محرك الذكاء الاصطناعي' },
   biz:    { zh: '商业化', en: 'Business', ja: 'ビジネス', ko: '비즈니스', es: 'Negocio', fr: 'Affaires', de: 'Geschäft', ar: 'الأعمال' },
   system: { zh: '系统', en: 'System', ja: 'システム', ko: '시스템', es: 'Sistema', fr: 'Système', de: 'System', ar: 'النظام' },

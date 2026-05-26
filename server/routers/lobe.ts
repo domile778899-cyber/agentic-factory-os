@@ -1,5 +1,5 @@
 /**
- * LobeHub 风格功能路由
+ * Factory Hub - AI 工坊功能路由
  * 包含：助理管理、Skills技能库、MCP集成、模型管理、模型服务商、对话系统
  */
 import { z } from "zod";
@@ -10,17 +10,17 @@ import { eq, desc, and, sql } from "drizzle-orm";
 
 // ─── 默认数据 ───
 const DEFAULT_SKILLS = [
-  { name: 'Web搜索', description: '实时搜索互联网获取最新信息', category: 'search', icon: '🔍', author: 'LobeHub', isBuiltin: true, downloadCount: 128000, rating: 4.8 },
-  { name: 'Python执行', description: '在沙盒中执行Python代码并返回结果', category: 'code', icon: '🐍', author: 'LobeHub', isBuiltin: true, downloadCount: 95000, rating: 4.9 },
-  { name: '图像生成', description: '使用DALL-E/Stable Diffusion生成图像', category: 'creative', icon: '🎨', author: 'LobeHub', isBuiltin: true, downloadCount: 87000, rating: 4.7 },
-  { name: '文件读写', description: '读取和写入本地文件系统', category: 'system', icon: '📁', author: 'LobeHub', isBuiltin: true, downloadCount: 76000, rating: 4.6 },
-  { name: 'GitHub操作', description: '操作GitHub仓库、Issues、PR', category: 'devtools', icon: '🐙', author: 'LobeHub', isBuiltin: true, downloadCount: 65000, rating: 4.8 },
-  { name: '数据分析', description: '分析CSV/Excel数据并生成可视化图表', category: 'data', icon: '📊', author: 'LobeHub', isBuiltin: true, downloadCount: 58000, rating: 4.7 },
+  { name: 'Web搜索', description: '实时搜索互联网获取最新信息', category: 'search', icon: '🔍', author: 'Factory Hub', isBuiltin: true, downloadCount: 128000, rating: 4.8 },
+  { name: 'Python执行', description: '在沙盒中执行Python代码并返回结果', category: 'code', icon: '🐍', author: 'Factory Hub', isBuiltin: true, downloadCount: 95000, rating: 4.9 },
+  { name: '图像生成', description: '使用DALL-E/Stable Diffusion生成图像', category: 'creative', icon: '🎨', author: 'Factory Hub', isBuiltin: true, downloadCount: 87000, rating: 4.7 },
+  { name: '文件读写', description: '读取和写入本地文件系统', category: 'system', icon: '📁', author: 'Factory Hub', isBuiltin: true, downloadCount: 76000, rating: 4.6 },
+  { name: 'GitHub操作', description: '操作GitHub仓库、Issues、PR', category: 'devtools', icon: '🐙', author: 'Factory Hub', isBuiltin: true, downloadCount: 65000, rating: 4.8 },
+  { name: '数据分析', description: '分析CSV/Excel数据并生成可视化图表', category: 'data', icon: '📊', author: 'Factory Hub', isBuiltin: true, downloadCount: 58000, rating: 4.7 },
   { name: 'Telegram通知', description: '发送Telegram消息和通知', category: 'notification', icon: '📱', author: 'Community', isBuiltin: false, downloadCount: 42000, rating: 4.5 },
   { name: '邮件发送', description: '通过SMTP发送电子邮件', category: 'notification', icon: '📧', author: 'Community', isBuiltin: false, downloadCount: 38000, rating: 4.4 },
   { name: '数据库查询', description: '连接并查询MySQL/PostgreSQL数据库', category: 'data', icon: '🗄️', author: 'Community', isBuiltin: false, downloadCount: 35000, rating: 4.6 },
-  { name: 'API调用', description: '调用任意REST API接口', category: 'integration', icon: '🔌', author: 'LobeHub', isBuiltin: true, downloadCount: 72000, rating: 4.7 },
-  { name: '文档解析', description: '解析PDF、Word、Excel等文档', category: 'document', icon: '📄', author: 'LobeHub', isBuiltin: true, downloadCount: 55000, rating: 4.6 },
+  { name: 'API调用', description: '调用任意REST API接口', category: 'integration', icon: '🔌', author: 'Factory Hub', isBuiltin: true, downloadCount: 72000, rating: 4.7 },
+  { name: '文档解析', description: '解析PDF、Word、Excel等文档', category: 'document', icon: '📄', author: 'Factory Hub', isBuiltin: true, downloadCount: 55000, rating: 4.6 },
   { name: '翻译服务', description: '支持100+语言的实时翻译', category: 'language', icon: '🌐', author: 'Community', isBuiltin: false, downloadCount: 48000, rating: 4.5 },
 ];
 

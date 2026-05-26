@@ -12,7 +12,7 @@ const TYPE_INFO: Record<string, { label: string; icon: React.ElementType; color:
   trading:       { label: '量化交易',  icon: CandlestickChart, color: '#F472B6' },
 };
 
-// Mock chart data
+// Fallback chart data (used when API returns empty or route not available)
 const CHART_DATA = [
   { month: '1月', amount: 1200 },
   { month: '2月', amount: 1800 },
@@ -26,6 +26,17 @@ export default function EarningsPage() {
   const { t } = useI18n();
   const { data: stats, isLoading: statsLoading } = trpc.earnings.stats.useQuery();
   const { data: list, isLoading: listLoading } = trpc.earnings.list.useQuery();
+
+  // TODO: Enable when backend adds earnings.history route
+  // const { data: history, isLoading: historyLoading } = trpc.earnings.history.useQuery();
+  // const chartData = history && history.length > 0
+  //   ? history.map((h: any) => ({ month: h.month, amount: h.amount / 100 }))
+  //   : CHART_DATA;
+
+  // For now, derive chart data from earnings list as a proxy
+  const chartData = (list && list.length > 0)
+    ? deriveChartDataFromList(list)
+    : CHART_DATA;
 
   const totalYuan = ((stats?.totalCents || 0) / 100).toFixed(2);
   const confirmedYuan = ((stats?.confirmedCents || 0) / 100).toFixed(2);
@@ -76,7 +87,7 @@ export default function EarningsPage() {
             <TrendingUp size={14} className="text-[var(--brand-light)]" /> 收益趋势（近6个月）
           </h3>
           <ResponsiveContainer width="100%" height={220}>
-            <AreaChart data={CHART_DATA}>
+            <AreaChart data={chartData}>
               <defs>
                 <linearGradient id="earningsGrad" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#7C5CFC" stopOpacity={0.3} />
@@ -166,3 +177,29 @@ export default function EarningsPage() {
     </div>
   );
 }
+
+// Helper: derive monthly chart data from earnings list
+function deriveChartDataFromList(list: any[]): typeof CHART_DATA {
+  const monthMap = new Map<string, number>();
+  // Initialize last 6 months
+  const now = new Date();
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const key = `${d.getMonth() + 1}月`;
+    monthMap.set(key, 0);
+  }
+  // Aggregate amounts by month
+  for (const item of list) {
+    const d = new Date(item.createdAt);
+    const key = `${d.getMonth() + 1}月`;
+    if (monthMap.has(key)) {
+      monthMap.set(key, (monthMap.get(key) || 0) + (item.amountCents || 0) / 100);
+    }
+  }
+  // Convert to chart format
+  return Array.from(monthMap.entries()).map(([month, amount]) => ({
+    month,
+    amount: Math.round(amount * 100) / 100,
+  }));
+}
+

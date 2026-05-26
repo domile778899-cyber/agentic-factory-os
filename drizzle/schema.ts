@@ -183,3 +183,236 @@ export type FixProposal = typeof fixProposals.$inferSelect;
 export type MoeConfig = typeof moeConfigs.$inferSelect;
 export type Subscription = typeof subscriptions.$inferSelect;
 export type Earning = typeof earnings.$inferSelect;
+
+/* ═══════════════════════════════════════════════════════════
+   新增表定义 (2024)
+   ═══════════════════════════════════════════════════════════ */
+
+/* ─── Assistants (AI助理) ─── */
+export const assistants = mysqlTable("assistants", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  name: varchar("name", { length: 128 }).notNull(),
+  avatar: text("avatar"),
+  description: text("description"),
+  systemPrompt: text("systemPrompt"),
+  model: varchar("model", { length: 64 }),
+  provider: varchar("provider", { length: 64 }),
+  temperature: float("temperature").default(0.7),
+  maxTokens: int("maxTokens").default(2048),
+  tags: json("tags"),
+  isPublic: boolean("isPublic").default(false).notNull(),
+  usageCount: int("usageCount").default(0).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+/* ─── Skills (技能市场) ─── */
+export const skills = mysqlTable("skills", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 128 }).notNull(),
+  description: text("description"),
+  category: varchar("category", { length: 64 }).notNull(),
+  icon: text("icon"),
+  author: varchar("author", { length: 128 }),
+  isBuiltin: boolean("isBuiltin").default(false).notNull(),
+  downloadCount: int("downloadCount").default(0).notNull(),
+  rating: float("rating").default(0),
+  config: json("config"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+/* ─── UserSkills (用户已安装技能) ─── */
+export const userSkills = mysqlTable("userSkills", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  skillId: int("skillId").notNull(),
+  installedAt: timestamp("installedAt").defaultNow().notNull(),
+  config: json("config"),
+});
+
+/* ─── McpServers (MCP服务器配置) ─── */
+export const mcpServers = mysqlTable("mcpServers", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  name: varchar("name", { length: 128 }).notNull(),
+  description: text("description"),
+  endpoint: text("endpoint"),
+  transport: varchar("transport", { length: 32 }).default("stdio").notNull(),
+  enabled: boolean("enabled").default(true).notNull(),
+  status: mysqlEnum("status", ["online", "offline", "error"]).default("offline").notNull(),
+  toolsCount: int("toolsCount").default(0).notNull(),
+  callsCount: int("callsCount").default(0).notNull(),
+  config: json("config"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+/* ─── ModelProviders (模型服务商) ─── */
+export const modelProviders = mysqlTable("modelProviders", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  providerKey: varchar("providerKey", { length: 64 }).notNull(),
+  providerName: varchar("providerName", { length: 128 }).notNull(),
+  isFree: boolean("isFree").default(false).notNull(),
+  enabled: boolean("enabled").default(true).notNull(),
+  apiKey: text("apiKey"),
+  baseUrl: text("baseUrl"),
+  models: json("models"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+/* ─── Conversations (对话历史) ─── */
+export const conversations = mysqlTable("conversations", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  assistantId: int("assistantId"),
+  title: varchar("title", { length: 256 }),
+  model: varchar("model", { length: 64 }),
+  provider: varchar("provider", { length: 64 }),
+  messageCount: int("messageCount").default(0).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+/* ─── Messages (消息记录) ─── */
+export const messages = mysqlTable("messages", {
+  id: int("id").autoincrement().primaryKey(),
+  conversationId: int("conversationId").notNull(),
+  role: mysqlEnum("role", ["user", "assistant", "system"]).notNull(),
+  content: text("content").notNull(),
+  tokensUsed: int("tokensUsed"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+/* ─── TaskOrders (任务订单) ─── */
+export const taskOrders = mysqlTable("taskOrders", {
+  id: int("id").autoincrement().primaryKey(),
+  publisherId: int("publisherId").notNull(),
+  takerId: int("takerId"),
+  title: varchar("title", { length: 256 }).notNull(),
+  description: text("description"),
+  category: varchar("category", { length: 64 }).notNull(),
+  budget: float("budget"),
+  currency: varchar("currency", { length: 8 }).default("CNY").notNull(),
+  deadline: timestamp("deadline"),
+  status: mysqlEnum("status", ["open", "in_progress", "completed", "cancelled"]).default("open").notNull(),
+  requiredSkills: json("requiredSkills"),
+  attachments: json("attachments"),
+  completedAt: timestamp("completedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+/* ─── CommunityPosts (社区帖子) ─── */
+export const communityPosts = mysqlTable("communityPosts", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  title: varchar("title", { length: 256 }).notNull(),
+  content: text("content").notNull(),
+  category: varchar("category", { length: 64 }).notNull(),
+  income: float("income"),
+  tags: json("tags"),
+  likeCount: int("likeCount").default(0).notNull(),
+  commentCount: int("commentCount").default(0).notNull(),
+  isPinned: boolean("isPinned").default(false).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+/* ─── CommunityComments (社区评论) ─── */
+export const communityComments = mysqlTable("communityComments", {
+  id: int("id").autoincrement().primaryKey(),
+  postId: int("postId").notNull(),
+  userId: int("userId").notNull(),
+  content: text("content").notNull(),
+  likeCount: int("likeCount").default(0).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+/* ─── UserIncomePlans (用户收益计划) ─── */
+export const userIncomePlans = mysqlTable("userIncomePlans", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  title: varchar("title", { length: 256 }).notNull(),
+  strategy: json("strategy"),
+  expectedIncome: float("expectedIncome"),
+  timeline: text("timeline"),
+  status: mysqlEnum("status", ["draft", "active", "paused", "completed"]).default("draft").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+/* ─── PaymentEscrow (支付托管) ─── */
+export const paymentEscrow = mysqlTable("paymentEscrow", {
+  id: int("id").autoincrement().primaryKey(),
+  taskOrderId: int("taskOrderId").notNull(),
+  payerId: int("payerId").notNull(),
+  payeeId: int("payeeId").notNull(),
+  amount: float("amount").notNull(),
+  currency: varchar("currency", { length: 8 }).default("CNY").notNull(),
+  paymentMethod: varchar("paymentMethod", { length: 64 }),
+  status: mysqlEnum("status", ["pending", "held", "released", "disputed", "refunded"]).default("pending").notNull(),
+  platformFeePercent: float("platformFeePercent").default(5),
+  platformFeeCents: int("platformFeeCents").default(0),
+  payeeAmountCents: int("payeeAmountCents").default(0),
+  heldAt: timestamp("heldAt"),
+  releasedAt: timestamp("releasedAt"),
+  disputeReason: text("disputeReason"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+/* ─── AdminSettings (管理后台配置) ─── */
+export const adminSettings = mysqlTable("adminSettings", {
+  id: int("id").autoincrement().primaryKey(),
+  key: varchar("key", { length: 128 }).notNull().unique(),
+  value: text("value"),
+  updatedBy: int("updatedBy"),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+/* ─── Announcements (公告) ─── */
+export const announcements = mysqlTable("announcements", {
+  id: int("id").autoincrement().primaryKey(),
+  adminId: int("adminId").notNull(),
+  title: varchar("title", { length: 256 }).notNull(),
+  content: text("content").notNull(),
+  type: mysqlEnum("type", ["info", "warning", "success"]).default("info").notNull(),
+  isActive: boolean("isActive").default(true).notNull(),
+  startAt: timestamp("startAt"),
+  endAt: timestamp("endAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+/* ─── 新增表类型导出 ─── */
+export type Assistant = typeof assistants.$inferSelect;
+export type InsertAssistant = typeof assistants.$inferInsert;
+export type Skill = typeof skills.$inferSelect;
+export type InsertSkill = typeof skills.$inferInsert;
+export type UserSkill = typeof userSkills.$inferSelect;
+export type InsertUserSkill = typeof userSkills.$inferInsert;
+export type McpServer = typeof mcpServers.$inferSelect;
+export type InsertMcpServer = typeof mcpServers.$inferInsert;
+export type ModelProvider = typeof modelProviders.$inferSelect;
+export type InsertModelProvider = typeof modelProviders.$inferInsert;
+export type Conversation = typeof conversations.$inferSelect;
+export type InsertConversation = typeof conversations.$inferInsert;
+export type Message = typeof messages.$inferSelect;
+export type InsertMessage = typeof messages.$inferInsert;
+export type TaskOrder = typeof taskOrders.$inferSelect;
+export type InsertTaskOrder = typeof taskOrders.$inferInsert;
+export type CommunityPost = typeof communityPosts.$inferSelect;
+export type InsertCommunityPost = typeof communityPosts.$inferInsert;
+export type CommunityComment = typeof communityComments.$inferSelect;
+export type InsertCommunityComment = typeof communityComments.$inferInsert;
+export type UserIncomePlan = typeof userIncomePlans.$inferSelect;
+export type InsertUserIncomePlan = typeof userIncomePlans.$inferInsert;
+export type PaymentEscrow = typeof paymentEscrow.$inferSelect;
+export type InsertPaymentEscrow = typeof paymentEscrow.$inferInsert;
+export type AdminSetting = typeof adminSettings.$inferSelect;
+export type InsertAdminSetting = typeof adminSettings.$inferInsert;
+export type Announcement = typeof announcements.$inferSelect;
+export type InsertAnnouncement = typeof announcements.$inferInsert;
