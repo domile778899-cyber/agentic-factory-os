@@ -6,6 +6,7 @@ import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { invokeLLM } from "./_core/llm";
 import { lobeRouter } from './routers/lobe';
 import { adminRouter } from './routers/admin';
+import { communityRouter } from './routers/community';
 import {
   upsertUser, getUserByOpenId,
   getProjectsByUser, createProject, getProjectById, updateProject,
@@ -270,6 +271,9 @@ export const appRouter = router({
 
   /* ─── 管理后台 ─── */
   admin: adminRouter,
+
+  /* ─── 赚錢社区 ─── */
+  community: communityRouter,
 
   /* ─── i18n ─── */
   i18n: router({

@@ -19,6 +19,7 @@ const NAV_ITEMS = [
   { key: 'nav_factory',      path: '/factory',      icon: Factory,       section: 'main', badge: 'AI' },
   { key: 'nav_agents',       path: '/agents',       icon: Bot,           section: 'main' },
   { key: 'nav_workspace',    path: '/workspace',    icon: Box,           section: 'main', badge: '3D' },
+  { key: 'nav_community',    path: '/community',    icon: DollarSign,    section: 'main', badge: '💰' },
   { key: 'nav_assistants',   path: '/assistants',   icon: MessageSquare, section: 'lobe', badge: 'NEW' },
   { key: 'nav_skills',       path: '/skills',       icon: Wrench,        section: 'lobe' },
   { key: 'nav_mcp',          path: '/mcp-servers',  icon: Plug,          section: 'lobe' },

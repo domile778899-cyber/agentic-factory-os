@@ -20,6 +20,7 @@ export const translations = {
     nav_mcp: 'MCP',
     nav_providers: '模型服务商',
     nav_admin: '管理后台',
+    nav_community: '赚錢社区',
     // 通用
     loading: '加载中...',
     save: '保存',
@@ -107,6 +108,7 @@ export const translations = {
     nav_mcp: 'MCP',
     nav_providers: 'Providers',
     nav_admin: 'Admin',
+    nav_community: 'Earn Money',
     loading: 'Loading...',
     save: 'Save',
     cancel: 'Cancel',

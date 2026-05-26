@@ -27,6 +27,7 @@ import AdminUsersPage from "./pages/admin/AdminUsers";
 import AdminSettingsPage from "./pages/admin/AdminSettings";
 import AdminOrdersPage from "./pages/admin/AdminOrders";
 import { AdminBuildsPage, AdminAnnouncementsPage } from "./pages/admin/AdminBuilds";
+import MoneyCommunity from "./pages/MoneyCommunity";
 
 // Pages that use the full AppLayout (dashboard-style)
 const LAYOUT_ROUTES = [
@@ -45,6 +46,7 @@ const LAYOUT_ROUTES = [
   { path: "/skills",       Component: Skills },
   { path: "/mcp-servers",  Component: MCPPage },
   { path: "/providers",    Component: ModelProviders },
+  { path: "/community",    Component: MoneyCommunity },
 ];
 
 function AdminRouter() {
