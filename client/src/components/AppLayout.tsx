@@ -8,11 +8,12 @@ import {
   Home, Factory, Bot, Box, Zap, Shield, Network,
   FolderOpen, DollarSign, CreditCard, Settings,
   ChevronLeft, ChevronRight, Globe, LogOut, User,
-  Sparkles, Menu, X, Brain, Wrench, Plug, MessageSquare, ShieldCheck
+  Sparkles, Menu, X, Brain, Wrench, Plug, MessageSquare, ShieldCheck, Users
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 
 const NAV_ITEMS = [
   { key: 'nav_home',         path: '/',             icon: Home,          section: 'main' },
@@ -20,6 +21,7 @@ const NAV_ITEMS = [
   { key: 'nav_agents',       path: '/agents',       icon: Bot,           section: 'main' },
   { key: 'nav_workspace',    path: '/workspace',    icon: Box,           section: 'main', badge: '3D' },
   { key: 'nav_community',    path: '/community',    icon: DollarSign,    section: 'main', badge: '💰' },
+  { key: 'nav_agent_team',    path: '/agent-team',   icon: Users,         section: 'main', badge: 'AGI' },
   { key: 'nav_assistants',   path: '/assistants',   icon: MessageSquare, section: 'lobe', badge: 'NEW' },
   { key: 'nav_skills',       path: '/skills',       icon: Wrench,        section: 'lobe' },
   { key: 'nav_mcp',          path: '/mcp-servers',  icon: Plug,          section: 'lobe' },
@@ -34,12 +36,12 @@ const NAV_ITEMS = [
   { key: 'nav_admin',         path: '/admin',        icon: ShieldCheck,   section: 'system', badge: 'ADMIN' },
 ] as const;
 
-const SECTION_LABELS = {
-  main:   { zh: '核心功能', en: 'Core' },
-  lobe:   { zh: 'LobeHub 模块', en: 'LobeHub' },
-  ai:     { zh: 'AI 引擎', en: 'AI Engine' },
-  biz:    { zh: '商业化', en: 'Business' },
-  system: { zh: '系统', en: 'System' },
+const SECTION_LABELS: Record<string, Record<string, string>> = {
+  main:   { zh: '核心功能', en: 'Core', ja: 'コア', ko: '핵심', es: 'Principal', fr: 'Principal', de: 'Kern', ar: 'الرئيسي' },
+  lobe:   { zh: 'LobeHub 模块', en: 'LobeHub', ja: 'LobeHub', ko: 'LobeHub', es: 'LobeHub', fr: 'LobeHub', de: 'LobeHub', ar: 'LobeHub' },
+  ai:     { zh: 'AI 引擎', en: 'AI Engine', ja: 'AIエンジン', ko: 'AI 엔진', es: 'Motor IA', fr: 'Moteur IA', de: 'KI-Engine', ar: 'محرك الذكاء الاصطناعي' },
+  biz:    { zh: '商业化', en: 'Business', ja: 'ビジネス', ko: '비즈니스', es: 'Negocio', fr: 'Affaires', de: 'Geschäft', ar: 'الأعمال' },
+  system: { zh: '系统', en: 'System', ja: 'システム', ko: '시스템', es: 'Sistema', fr: 'Système', de: 'System', ar: 'النظام' },
 };
 
 interface AppLayoutProps { children: React.ReactNode; }
@@ -79,7 +81,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
             <div key={section} className="mb-2">
               {!collapsed && (
                 <div className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-widest text-[var(--text-muted)]">
-                  {SECTION_LABELS[section][locale]}
+                  {SECTION_LABELS[section]?.[locale] || SECTION_LABELS[section]?.['en'] || section}
                 </div>
               )}
               {items.map(item => {
@@ -118,14 +120,8 @@ export default function AppLayout({ children }: AppLayoutProps) {
 
       {/* Bottom: locale + user */}
       <div className="border-t border-[var(--border-subtle)] p-2 space-y-1">
-        {/* Locale toggle */}
-        <button
-          onClick={() => changeLocale(locale === 'zh' ? 'en' : 'zh')}
-          className={cn("sidebar-item w-full", collapsed && "justify-center px-2")}
-        >
-          <Globe size={15} className="flex-shrink-0" />
-          {!collapsed && <span className="text-sm">{locale === 'zh' ? 'English' : '中文'}</span>}
-        </button>
+        {/* Language Switcher */}
+        <LanguageSwitcher collapsed={collapsed} />
 
         {/* User */}
         {isAuthenticated ? (

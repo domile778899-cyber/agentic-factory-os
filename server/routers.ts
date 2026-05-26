@@ -7,6 +7,7 @@ import { invokeLLM } from "./_core/llm";
 import { lobeRouter } from './routers/lobe';
 import { adminRouter } from './routers/admin';
 import { communityRouter } from './routers/community';
+import { paymentRouter } from './routers/payment';
 import {
   upsertUser, getUserByOpenId,
   getProjectsByUser, createProject, getProjectById, updateProject,
@@ -274,6 +275,9 @@ export const appRouter = router({
 
   /* ─── 赚錢社区 ─── */
   community: communityRouter,
+
+  /* ─── 全球支付 ─── */
+  payment: paymentRouter,
 
   /* ─── i18n ─── */
   i18n: router({
