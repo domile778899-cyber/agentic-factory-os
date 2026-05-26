@@ -18,6 +18,10 @@ import Projects from "./pages/Projects";
 import Earnings from "./pages/Earnings";
 import Subscription from "./pages/Subscription";
 import Settings from "./pages/Settings";
+import Assistants from "./pages/Assistants";
+import Skills from "./pages/Skills";
+import MCPPage from "./pages/MCPPage";
+import ModelProviders from "./pages/ModelProviders";
 
 // Pages that use the full AppLayout (dashboard-style)
 const LAYOUT_ROUTES = [
@@ -32,6 +36,10 @@ const LAYOUT_ROUTES = [
   { path: "/earnings",     Component: Earnings },
   { path: "/subscription", Component: Subscription },
   { path: "/settings",     Component: Settings },
+  { path: "/assistants",   Component: Assistants },
+  { path: "/skills",       Component: Skills },
+  { path: "/mcp-servers",  Component: MCPPage },
+  { path: "/providers",    Component: ModelProviders },
 ];
 
 function Router() {

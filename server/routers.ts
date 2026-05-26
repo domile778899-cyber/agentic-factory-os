@@ -4,6 +4,7 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { invokeLLM } from "./_core/llm";
+import { lobeRouter } from './routers/lobe';
 import {
   upsertUser, getUserByOpenId,
   getProjectsByUser, createProject, getProjectById, updateProject,
@@ -262,6 +263,9 @@ export const appRouter = router({
       return { totalCents: total, confirmedCents: confirmed, byType };
     }),
   }),
+
+  /* ─── LobeHub 功能模块 ─── */
+  lobe: lobeRouter,
 
   /* ─── i18n ─── */
   i18n: router({

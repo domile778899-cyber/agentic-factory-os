@@ -48,3 +48,25 @@
 ## 测试
 - [x] 后端路由单元测试
 - [x] 前端关键组件测试
+
+## LobeHub 风格功能模块（新增）
+- [x] 助理管理页（Agent Builder - 创建/编辑/删除AI助理，设置系统提示词）
+- [x] Skills 技能市场（技能包浏览、安装、管理，含10000+工具库入口）
+- [x] MCP 集成管理页（MCP服务器配置、连接状态、工具调用统计）
+- [x] 模型管理页（已接入模型列表、参数配置、基准测试）
+- [x] 模型服务商配置页（API Key管理、服务商开关、自定义端点）
+- [x] 免费AI模型集成（DeepSeek免费额度、Qwen、Gemini Flash、Groq等）
+- [x] 助理对话页（基于选定助理和模型的完整对话界面）
+
+## GitHub 自动化工厂（新增）
+- [x] GitHub OAuth 授权集成（用户授权GitHub访问权限）
+- [x] 自动创建仓库并推送AI生成代码
+- [x] 构建完成后 Telegram 通知推送
+
+## 数据库表（新增）
+- [x] assistants 表（AI助理配置）
+- [x] skills 表（技能包）
+- [x] mcp_servers 表（MCP服务器配置）
+- [x] model_providers 表（模型服务商）
+- [x] conversations 表（对话历史）
+- [x] messages 表（消息记录）

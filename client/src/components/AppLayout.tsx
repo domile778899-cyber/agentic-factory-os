@@ -8,28 +8,33 @@ import {
   Home, Factory, Bot, Box, Zap, Shield, Network,
   FolderOpen, DollarSign, CreditCard, Settings,
   ChevronLeft, ChevronRight, Globe, LogOut, User,
-  Sparkles, Menu, X
+  Sparkles, Menu, X, Brain, Wrench, Plug, MessageSquare
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 
 const NAV_ITEMS = [
-  { key: 'nav_home',         path: '/',             icon: Home,       section: 'main' },
-  { key: 'nav_factory',      path: '/factory',      icon: Factory,    section: 'main', badge: 'AI' },
-  { key: 'nav_agents',       path: '/agents',       icon: Bot,        section: 'main' },
-  { key: 'nav_workspace',    path: '/workspace',    icon: Box,        section: 'main', badge: '3D' },
-  { key: 'nav_evolution',    path: '/evolution',    icon: Sparkles,   section: 'ai' },
-  { key: 'nav_maintenance',  path: '/maintenance',  icon: Shield,     section: 'ai' },
-  { key: 'nav_moe',          path: '/moe',          icon: Network,    section: 'ai' },
-  { key: 'nav_projects',     path: '/projects',     icon: FolderOpen, section: 'biz' },
-  { key: 'nav_earnings',     path: '/earnings',     icon: DollarSign, section: 'biz' },
-  { key: 'nav_subscription', path: '/subscription', icon: CreditCard, section: 'biz' },
-  { key: 'nav_settings',     path: '/settings',     icon: Settings,   section: 'system' },
+  { key: 'nav_home',         path: '/',             icon: Home,          section: 'main' },
+  { key: 'nav_factory',      path: '/factory',      icon: Factory,       section: 'main', badge: 'AI' },
+  { key: 'nav_agents',       path: '/agents',       icon: Bot,           section: 'main' },
+  { key: 'nav_workspace',    path: '/workspace',    icon: Box,           section: 'main', badge: '3D' },
+  { key: 'nav_assistants',   path: '/assistants',   icon: MessageSquare, section: 'lobe', badge: 'NEW' },
+  { key: 'nav_skills',       path: '/skills',       icon: Wrench,        section: 'lobe' },
+  { key: 'nav_mcp',          path: '/mcp-servers',  icon: Plug,          section: 'lobe' },
+  { key: 'nav_providers',    path: '/providers',    icon: Brain,         section: 'lobe', badge: '🆓' },
+  { key: 'nav_evolution',    path: '/evolution',    icon: Sparkles,      section: 'ai' },
+  { key: 'nav_maintenance',  path: '/maintenance',  icon: Shield,        section: 'ai' },
+  { key: 'nav_moe',          path: '/moe',          icon: Network,       section: 'ai' },
+  { key: 'nav_projects',     path: '/projects',     icon: FolderOpen,    section: 'biz' },
+  { key: 'nav_earnings',     path: '/earnings',     icon: DollarSign,    section: 'biz' },
+  { key: 'nav_subscription', path: '/subscription', icon: CreditCard,    section: 'biz' },
+  { key: 'nav_settings',     path: '/settings',     icon: Settings,      section: 'system' },
 ] as const;
 
 const SECTION_LABELS = {
   main:   { zh: '核心功能', en: 'Core' },
+  lobe:   { zh: 'LobeHub 模块', en: 'LobeHub' },
   ai:     { zh: 'AI 引擎', en: 'AI Engine' },
   biz:    { zh: '商业化', en: 'Business' },
   system: { zh: '系统', en: 'System' },
@@ -66,7 +71,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
 
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto py-3 px-2 space-y-0.5">
-        {(['main','ai','biz','system'] as const).map(section => {
+        {(['main','lobe','ai','biz','system'] as const).map(section => {
           const items = NAV_ITEMS.filter(i => i.section === section);
           return (
             <div key={section} className="mb-2">
