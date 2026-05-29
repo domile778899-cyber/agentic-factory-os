@@ -4,9 +4,7 @@ export type Locale = 'zh' | 'en';
 export const translations = {
   zh: {
     // 导航
-    nav_home: '首页',
-    nav_factory: 'AI 工厂',
-    nav_agents: '代理人团队',
+        nav_home: '首页', nav_free_ai: '免费AI', nav_factory: 'AI 工厂', nav_agents: '代理人团队',
     nav_workspace: '3D 工作台',
     nav_evolution: '自进化引擎',
     nav_maintenance: '自动维护',
@@ -92,6 +90,7 @@ export const translations = {
   },
   en: {
     nav_home: 'Home',
+    nav_free_ai: 'Free AI',
     nav_factory: 'AI Factory',
     nav_agents: 'Agent Team',
     nav_workspace: '3D Workspace',

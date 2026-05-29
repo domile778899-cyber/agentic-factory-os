@@ -8,7 +8,7 @@ import {
   Home, Factory, Bot, Box, Zap, Shield, Network,
   FolderOpen, DollarSign, CreditCard, Settings,
   ChevronLeft, ChevronRight, Globe, LogOut, User,
-  Sparkles, Menu, X, Brain, Wrench, Plug, MessageSquare, ShieldCheck
+  Sparkles, Menu, X, Brain, Wrench, Plug, MessageSquare, ShieldCheck, Users, Gift
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -16,6 +16,7 @@ import { cn } from '@/lib/utils';
 
 const NAV_ITEMS = [
   { key: 'nav_home',         path: '/',             icon: Home,          section: 'main' },
+  { key: 'nav_free_ai',      path: '/free-ai',      icon: Gift,          section: 'main', badge: '🎉免费' },
   { key: 'nav_factory',      path: '/factory',      icon: Factory,       section: 'main', badge: 'AI' },
   { key: 'nav_agents',       path: '/agents',       icon: Bot,           section: 'main' },
   { key: 'nav_workspace',    path: '/workspace',    icon: Box,           section: 'main', badge: '3D' },
