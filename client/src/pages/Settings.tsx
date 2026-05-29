@@ -1,5 +1,7 @@
 import { motion } from 'framer-motion';
-import { Settings, Globe, User, Bell, Shield, Palette } from 'lucide-react';
+import { Settings, Globe, User, Bell, Shield, Palette, Volume2, Eye, EyeOff, CheckCircle2 } from 'lucide-react';
+import { useState } from 'react';
+import { Input } from '@/components/ui/input';
 import { useI18n } from '@/hooks/useI18n';
 import { useAuth } from '@/_core/hooks/useAuth';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -9,6 +11,16 @@ import { toast } from 'sonner';
 export default function SettingsPage() {
   const { t, locale, changeLocale } = useI18n();
   const { user } = useAuth();
+  const [elevenlabsKey, setElevenlabsKey] = useState(() => localStorage.getItem('elevenlabs_api_key') || '');
+  const [showKey, setShowKey] = useState(false);
+  const [keySaved, setKeySaved] = useState(false);
+
+  const saveElevenLabsKey = () => {
+    localStorage.setItem('elevenlabs_api_key', elevenlabsKey);
+    setKeySaved(true);
+    toast.success('ElevenLabs API Key 已保存！3D工作台语音已升级为高质量AI语音');
+    setTimeout(() => setKeySaved(false), 3000);
+  };
 
   return (
     <div className="p-6 space-y-6 max-w-2xl">
@@ -76,6 +88,58 @@ export default function SettingsPage() {
             <div className="text-sm font-medium text-[var(--text-primary)]">深空晶体暗色主题</div>
             <div className="text-xs text-[var(--text-muted)]">#0B0B0F · #7C5CFC · 当前唯一主题</div>
           </div>
+        </div>
+      </div>
+
+      {/* ElevenLabs Voice */}
+      <div className="glass-card p-5 border-[var(--brand-primary)]/20">
+        <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-1 flex items-center gap-2">
+          <Volume2 size={14} className="text-[var(--brand-light)]" /> ElevenLabs 高质量语音
+        </h3>
+        <p className="text-xs text-[var(--text-muted)] mb-4">
+          配置后，3D工作台中每个 Agent 将使用独特的高质量 AI 语音播报工作状态。
+          <a href="https://elevenlabs.io" target="_blank" rel="noopener noreferrer" className="text-[var(--brand-light)] hover:underline ml-1">获取免费 API Key →</a>
+        </p>
+        <div className="flex gap-2">
+          <div className="relative flex-1">
+            <Input
+              type={showKey ? 'text' : 'password'}
+              value={elevenlabsKey}
+              onChange={e => setElevenlabsKey(e.target.value)}
+              placeholder="sk_... (ElevenLabs API Key)"
+              className="input-dark pr-9"
+            />
+            <button onClick={() => setShowKey(v => !v)}
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-white transition-colors">
+              {showKey ? <EyeOff size={14} /> : <Eye size={14} />}
+            </button>
+          </div>
+          <Button onClick={saveElevenLabsKey} className="btn-brand gap-1.5 h-9 px-4 flex-shrink-0">
+            {keySaved ? <CheckCircle2 size={14} /> : <Volume2 size={14} />}
+            {keySaved ? '已保存' : '保存'}
+          </Button>
+        </div>
+        {elevenlabsKey && (
+          <div className="mt-2 flex items-center gap-2 text-xs text-[var(--success)]">
+            <CheckCircle2 size={11} /> ElevenLabs 已配置 · 3D工作台语音已启用高质量模式
+          </div>
+        )}
+        <div className="mt-3 grid grid-cols-2 gap-2">
+          {[
+            { name: '安全架构师', voice: 'Adam', icon: '🔐', pitch: '低沉' },
+            { name: '合规法务官', voice: 'Bella', icon: '⚖️', pitch: '优雅' },
+            { name: '后端工程师', voice: 'Arnold', icon: '🏗️', pitch: '专业' },
+            { name: 'AI编程导师', voice: 'Elli', icon: '💻', pitch: '活泼' },
+            { name: '数据分析师', voice: 'Josh', icon: '📊', pitch: '清晰' },
+            { name: '安全审计师', voice: 'Sam', icon: '🛡️', pitch: '沉稳' },
+          ].map(a => (
+            <div key={a.name} className="flex items-center gap-2 text-[10px] text-[var(--text-secondary)] bg-[var(--bg-elevated)] rounded-lg px-2 py-1.5">
+              <span>{a.icon}</span>
+              <span className="flex-1">{a.name}</span>
+              <span className="text-[var(--brand-light)] font-mono">{a.voice}</span>
+              <span className="text-[var(--text-muted)]">{a.pitch}</span>
+            </div>
+          ))}
         </div>
       </div>
 

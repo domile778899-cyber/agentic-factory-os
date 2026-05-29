@@ -149,6 +149,7 @@ export default function FactoryPage() {
           agentMessages={agentMessages}
           isBuilding={polling}
           height={320}
+          elevenlabsApiKey={localStorage.getItem('elevenlabs_api_key') || ''}
         />
       </div>
 
