@@ -7,6 +7,7 @@ import { invokeLLM } from "./_core/llm";
 import { lobeRouter } from './routers/lobe';
 import { adminRouter } from './routers/admin';
 import { freeAiRouter } from './routers/freeai';
+import { chatHistoryRouter } from './routers/chatHistory';
 import {
   upsertUser, getUserByOpenId,
   getProjectsByUser, createProject, getProjectById, updateProject,
@@ -274,6 +275,9 @@ export const appRouter = router({
 
   /* ─── 免费 AI 模型 ─── */
   freeAi: freeAiRouter,
+
+  /* ─── 对话历史 ─── */
+  chatHistory: chatHistoryRouter,
 
   /* ─── i18n ─── */
   i18n: router({
