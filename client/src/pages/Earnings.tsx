@@ -47,7 +47,7 @@ export default function EarningsPage() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
           { label: t('earnings_total'), value: `¥${totalYuan}`, icon: TrendingUp, color: 'var(--brand-primary)' },
-          { label: '已确认收益', value: `¥${confirmedYuan}`, icon: Wallet, color: 'var(--success)' },
+          { label: t('earnings_confirmed'), value: `¥${confirmedYuan}`, icon: Wallet, color: 'var(--success)' },
           { label: '本月收益', value: `¥${(Number(totalYuan) * 0.3).toFixed(2)}`, icon: DollarSign, color: 'var(--warning)' },
           { label: '收益来源', value: Object.keys(stats?.byType || {}).length || 0, icon: ShoppingBag, color: 'var(--info)' },
         ].map((stat, i) => {
